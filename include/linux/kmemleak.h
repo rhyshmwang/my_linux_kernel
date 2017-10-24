@@ -21,7 +21,6 @@
 #ifndef __KMEMLEAK_H
 #define __KMEMLEAK_H
 
-#include <linux/slab.h>
 #include <linux/vmalloc.h>
 
 #ifdef CONFIG_DEBUG_KMEMLEAK
@@ -47,17 +46,19 @@ extern void kmemleak_free_part_phys(phys_addr_t phys, size_t size) __ref;
 extern void kmemleak_not_leak_phys(phys_addr_t phys) __ref;
 extern void kmemleak_ignore_phys(phys_addr_t phys) __ref;
 
+#define KMEMLEAK_NOLEAKTRACE	0x00800000UL	/* Avoid kmemleak tracing */
+
 static inline void kmemleak_alloc_recursive(const void *ptr, size_t size,
 					    int min_count, unsigned long flags,
 					    gfp_t gfp)
 {
-	if (!(flags & SLAB_NOLEAKTRACE))
+	if (!(flags & KMEMLEAK_NOLEAKTRACE))
 		kmemleak_alloc(ptr, size, min_count, gfp);
 }
 
 static inline void kmemleak_free_recursive(const void *ptr, unsigned long flags)
 {
-	if (!(flags & SLAB_NOLEAKTRACE))
+	if (!(flags & KMEMLEAK_NOLEAKTRACE))
 		kmemleak_free(ptr);
 }
 
